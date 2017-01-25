@@ -38,10 +38,26 @@ test('test 2', t => {
 });
 
 function equal(t, check, correct) {
-    eval(script);
-    process.stdin.emit('data', check);
-    process.stdin.emit('end');
-    t.is(getCalled(), correct);
+    try {
+        eval(script);
+        process.stdin.emit('data', check);
+        process.stdin.emit('end');
+        t.is(getCalled(), correct);
+    } catch (e) {
+        const match = e.stack.match(/<anonymous>:(\d+):(\d+)/);
+
+        const lineNumber = match.length > 1 ? match[1] : '0';
+        let message = lineNumber;
+
+        if(match.length > 2) {
+            message += ':' + match[2];
+        }
+
+        const err = e.constructor(`${e.message}. Line number:${message}`);
+        err.lineNumber = +lineNumber;
+        err.stack = e.stack;
+        throw err;
+    }
 }
 
 /**
