@@ -1,0 +1,16 @@
+{
+  "name": "paiza-js-tests",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava test.js --tap | tap-min"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "sinon": "^1.17.7",
+    "tap-min": "^1.1.0"
+  }
+}
