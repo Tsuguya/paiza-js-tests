@@ -12,4 +12,4 @@ process.stdin.on('end', () => {
 
     console.log(lines.join('\n'));
 
-})
+});

@@ -5,7 +5,6 @@ import fs from 'fs';
 const script = fs.readFileSync('index.js').toString();
 
 sinon.stub(console, 'log');
-let ignoreCallCount = 0;
 
 test.beforeEach(t => {
     t.context.log = console.log;
@@ -14,32 +13,9 @@ test.beforeEach(t => {
 
 test.afterEach(() => {
     console.log.reset();
-    process.stdin.removeAllListeners(['data', 'end']);
+    process.stdin.removeAllListeners('data');
+    process.stdin.removeAllListeners('end');
 });
-
-function equal(t, check, correct) {
-    eval(script);
-    process.stdin.emit('data', check);
-    process.stdin.emit('end');
-    t.is(getCalled(), correct);
-    // resetきかない・・・
-    ignoreCallCount = console.log.callCount;
-}
-
-/**
- * 呼ばれたconsole.logの内容を改行でくっつけて返す
- * @return {string}
- */
-function getCalled() {
-    let count = console.log.callCount - ignoreCallCount;
-    console.info('ifnore: ', ignoreCallCount, 'callCount: ', console.log.callCount);
-    const strs = [];
-    for(let i = 0; i < count; i++) {
-        strs.push(console.log.getCall(i).args[0]);
-    }
-
-    return strs.join('\n');
-}
 
 /*
 checkにテストケース、correctに正解をいれていく
@@ -60,3 +36,23 @@ test('test 2', t => {
 
     equal(t, check, correct);
 });
+
+function equal(t, check, correct) {
+    eval(script);
+    process.stdin.emit('data', check);
+    process.stdin.emit('end');
+    t.is(getCalled(), correct);
+}
+
+/**
+ * 呼ばれたconsole.logの内容を改行でくっつけて返す
+ * @return {string}
+ */
+function getCalled() {
+    const strs = [];
+    for(let i = 0; i < console.log.callCount; i++) {
+        strs.push(console.log.getCall(i).args[0]);
+    }
+
+    return strs.join('\n');
+}
