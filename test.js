@@ -1,6 +1,7 @@
 import test from 'ava';
 import sinon from 'sinon';
 import fs from 'fs';
+import path from 'path';
 
 const script = fs.readFileSync('index.js').toString();
 
@@ -13,15 +14,12 @@ test.beforeEach(t => {
 
 test.afterEach(() => {
     console.log.reset();
-    process.stdin.removeAllListeners('data');
-    process.stdin.removeAllListeners('end');
 });
 
 /*
 checkにテストケース、correctに正解をいれていく
-正解の末尾改行はcorrectに含まない
+正解の末尾改行はcorrectに含まない(console.logで改行されるため)
  */
-
 
 test('test 1', t => {
     const check = ``;
@@ -37,26 +35,23 @@ test('test 2', t => {
     equal(t, check, correct);
 });
 
+
 function equal(t, check, correct) {
+
+    const filename = t.title.replace(/\s/g, '-') + '.js';
+    fs.writeFileSync(filename, script);
+
     try {
-        eval(script);
+        require(path.resolve('./', filename));
         process.stdin.emit('data', check);
         process.stdin.emit('end');
         t.is(getCalled(), correct);
     } catch (e) {
-        const match = e.stack.match(/<anonymous>:(\d+):(\d+)/);
-
-        const lineNumber = match.length > 1 ? match[1] : '0';
-        let message = lineNumber;
-
-        if(match.length > 2) {
-            message += ':' + match[2];
-        }
-
-        const err = e.constructor(`${e.message}. Line number:${message}`);
-        err.lineNumber = +lineNumber;
-        err.stack = e.stack;
-        throw err;
+        throw e;
+    } finally {
+        process.stdin.removeAllListeners('data');
+        process.stdin.removeAllListeners('end');
+        fs.unlinkSync(filename);
     }
 }
 
