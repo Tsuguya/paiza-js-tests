@@ -1,4 +1,5 @@
-import test from 'ava';
+import addContext from 'mochawesome/addContext';
+import assert from 'power-assert';
 import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
@@ -8,53 +9,59 @@ v8.setFlagsFromString('--max_old_space_size=500');
 
 const script = fs.readFileSync('index.js').toString();
 
+
 sinon.stub(console, 'log');
 
-test.beforeEach(t => {
-    t.context.log = console.log;
-    console.log.reset();
-});
+describe('Paiza Skill Tests', () => {
 
-test.afterEach(() => {
-    console.log.reset();
-});
 
-/*
-checkにテストケース、correctに正解をいれていく
-正解の末尾改行はcorrectに含まない(console.logで改行されるため)
- */
+    beforeEach(function() {
+        console.log.reset();
+    });
 
-test('test 1', t => {
-    const check = ``;
-    const correct = ``;
+    afterEach(function() {
+        process.stdin.removeAllListeners('data');
+        process.stdin.removeAllListeners('end');
+        console.log.reset();
+    });
 
-    equal(t, check, correct);
-});
 
-test('test 2', t => {
-    const check = ``;
-    const correct = ``;
+    /*
+     checkにテストケース、correctに正解をいれていく
+     正解の末尾改行はcorrectに含まない(console.logで改行されるため)
+     */
 
-    equal(t, check, correct);
-});
+    it('test 1', function() {
+        const check = ``;
+        const correct = ``;
+
+        equal(this, check, correct);
+    });
+
+    it('test 2', function() {
+        const check = ``;
+        const correct = ``;
+
+        equal(this, check, correct);
+    });
 
 
 function equal(t, check, correct) {
-
-    const filename = t.title.replace(/\s/g, '-') + '.js';
-    fs.writeFileSync(filename, script);
-
+    const filename = t.test.title.replace(/\s/g, '-') + '.js';
     try {
+        fs.writeFileSync(filename, script);
         require(path.resolve('./', filename));
         process.stdin.emit('data', check);
         process.stdin.emit('end');
-        t.is(getCalled(), correct);
-    } catch (e) {
-        throw e;
-    } finally {
-        process.stdin.removeAllListeners('data');
-        process.stdin.removeAllListeners('end');
+        assert.equal(getCalled(), correct);
         fs.unlinkSync(filename);
+    } catch (e) {
+        addContext(t, {
+            title: e.name,
+            value: e.stack
+        });
+        fs.unlinkSync(filename);
+        throw e;
     }
 }
 

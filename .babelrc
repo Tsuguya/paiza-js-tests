@@ -1,0 +1,8 @@
+{
+  "presets": [
+    ["env", {
+      "modules": "commonjs",
+      "exclude": ["transform-regenerator", "es6.set"]
+    }]
+  ]
+}
