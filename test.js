@@ -2,6 +2,9 @@ import test from 'ava';
 import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
+import v8 from 'v8';
+
+v8.setFlagsFromString('--max_old_space_size=500');
 
 const script = fs.readFileSync('index.js').toString();
 
