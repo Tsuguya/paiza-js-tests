@@ -16,10 +16,13 @@ describe('Paiza Skill Tests', () => {
 
 
     beforeEach(function() {
+        this.currentTest.filename = this.currentTest.title.replace(/\s/g, '-') + '.js';
+        fs.writeFileSync(this.currentTest.filename, script);
         console.log.reset();
     });
 
     afterEach(function() {
+        fs.unlinkSync(this.currentTest.filename);
         process.stdin.removeAllListeners('data');
         process.stdin.removeAllListeners('end');
         console.log.reset();
@@ -48,20 +51,17 @@ describe('Paiza Skill Tests', () => {
 
 
 function equal(t, check, correct) {
-    const filename = t.test.title.replace(/\s/g, '-') + '.js';
     try {
-        fs.writeFileSync(filename, script);
-        require(path.resolve('./', filename));
+        require(path.resolve('./', t.test.filename));
         process.stdin.emit('data', check);
         process.stdin.emit('end');
         assert.equal(getCalled(), correct);
-        fs.unlinkSync(filename);
     } catch (e) {
         addContext(t, {
             title: e.name,
             value: e.stack
         });
-        fs.unlinkSync(filename);
+
         throw e;
     }
 }
