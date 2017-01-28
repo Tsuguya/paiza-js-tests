@@ -44,6 +44,7 @@ describe('Paiza Skill Tests', () => {
 
         equal(this, check, correct);
     });
+});
 
 
 function equal(t, check, correct) {
