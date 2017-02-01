@@ -3,12 +3,8 @@ import assert from 'power-assert';
 import sinon from 'sinon';
 import fs from 'fs';
 import path from 'path';
-import v8 from 'v8';
-
-v8.setFlagsFromString('--max_old_space_size=500');
 
 const script = fs.readFileSync('index.js').toString();
-
 
 sinon.stub(console, 'log');
 
@@ -25,7 +21,6 @@ describe('Paiza Skill Tests', () => {
         fs.unlinkSync(this.currentTest.filename);
         process.stdin.removeAllListeners('data');
         process.stdin.removeAllListeners('end');
-        console.log.reset();
     });
 
 
@@ -47,6 +42,7 @@ describe('Paiza Skill Tests', () => {
 
         equal(this, check, correct);
     });
+
 });
 
 
@@ -57,10 +53,12 @@ function equal(t, check, correct) {
         process.stdin.emit('end');
         assert.equal(getCalled(), correct);
     } catch (e) {
-        addContext(t, {
-            title: e.name,
-            value: e.stack
-        });
+        if(e.name !== 'AssertionError') {
+            addContext(t, {
+                title: e.name,
+                value: e.stack
+            });
+        }
 
         throw e;
     }
