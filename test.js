@@ -8,7 +8,7 @@ const script = fs.readFileSync('index.js').toString();
 
 sinon.stub(console, 'log');
 
-describe('Paiza Skill Tests', () => {
+describe('Paiza Skill Tests', function() {
 
 
     beforeEach(function() {
@@ -33,46 +33,48 @@ describe('Paiza Skill Tests', () => {
         const check = ``;
         const correct = ``;
 
-        equal(this, check, correct);
+        equal(check, correct);
     });
 
     it('test 2', function() {
         const check = ``;
         const correct = ``;
 
-        equal(this, check, correct);
+        equal(check, correct);
     });
 
-});
 
 
-function equal(t, check, correct) {
-    try {
-        require(path.resolve('./', t.test.filename));
-        process.stdin.emit('data', check);
-        process.stdin.emit('end');
-        assert.equal(getCalled(), correct);
-    } catch (e) {
-        if(e.name !== 'AssertionError') {
-            addContext(t, {
-                title: e.name,
-                value: e.stack
-            });
+
+    const equal = (check, correct) => {
+        try {
+            require(path.resolve('./', this.ctx.test.filename));
+            process.stdin.emit('data', check);
+            process.stdin.emit('end');
+            assert.equal(getCalled(), correct);
+        } catch (e) {
+            if(e.name !== 'AssertionError') {
+                addContext(this.ctx, {
+                    title: e.name,
+                    value: e.stack
+                });
+            }
+
+            throw e;
+        }
+    };
+
+    /**
+     * 呼ばれたconsole.logの内容を改行でくっつけて返す
+     * @return {string}
+     */
+    function getCalled() {
+        const strs = [];
+        for(let i = 0; i < console.log.callCount; i++) {
+            strs.push(console.log.getCall(i).args[0]);
         }
 
-        throw e;
-    }
-}
-
-/**
- * 呼ばれたconsole.logの内容を改行でくっつけて返す
- * @return {string}
- */
-function getCalled() {
-    const strs = [];
-    for(let i = 0; i < console.log.callCount; i++) {
-        strs.push(console.log.getCall(i).args[0]);
+        return strs.join('\n');
     }
 
-    return strs.join('\n');
-}
+});
