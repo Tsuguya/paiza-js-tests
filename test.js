@@ -11,14 +11,14 @@ sinon.stub(console, 'log');
 describe('Paiza Skill Tests', function() {
 
 
-    beforeEach(function() {
-        this.currentTest.filename = this.currentTest.title.replace(/\s/g, '-') + '.js';
-        fs.writeFileSync(this.currentTest.filename, script);
+    beforeEach(() => {
+        this.ctx.test.filename = this.ctx.test.title.replace(/\s/g, '-') + '.js';
+        fs.writeFileSync(this.ctx.test.filename, script);
         console.log.reset();
     });
 
-    afterEach(function() {
-        fs.unlinkSync(this.currentTest.filename);
+    afterEach(() => {
+        fs.unlinkSync(this.ctx.test.filename);
         process.stdin.removeAllListeners('data');
         process.stdin.removeAllListeners('end');
     });
@@ -29,14 +29,14 @@ describe('Paiza Skill Tests', function() {
      正解の末尾改行はcorrectに含まない(console.logで改行されるため)
      */
 
-    it('test 1', function() {
+    it('test 1', () => {
         const check = ``;
         const correct = ``;
 
         equal(check, correct);
     });
 
-    it('test 2', function() {
+    it('test 2', () => {
         const check = ``;
         const correct = ``;
 
@@ -68,7 +68,7 @@ describe('Paiza Skill Tests', function() {
      * 呼ばれたconsole.logの内容を改行でくっつけて返す
      * @return {string}
      */
-    function getCalled() {
+    const getCalled = () => {
         const strs = [];
         for(let i = 0; i < console.log.callCount; i++) {
             strs.push(console.log.getCall(i).args[0]);
